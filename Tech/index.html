@@ -1,0 +1,987 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teknoloji ile Yaşlılara Bilgi Yarışması</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            flex-direction: column;
+            text-align: center;
+            padding: 20px;
+        }
+        .container {
+            background-color: #fff;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 600px;
+        }
+        h1 {
+            color: #333;
+            font-size: 2rem;
+        }
+        #question-box {
+            margin-top: 1.5rem;
+        }
+        #question {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            color: #444;
+        }
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        .option-button {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            padding: 1rem;
+            font-size: 1.2rem;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .option-button:hover {
+            background-color: #0056b3;
+        }
+        #result-box {
+            margin-top: 1.5rem;
+            font-size: 1.5rem;
+            font-weight: bold;
+            display: none;
+        }
+        #restart-button {
+            margin-top: 1rem;
+            background-color: #28a745;
+            color: #fff;
+            border: none;
+            padding: 1rem 2rem;
+            font-size: 1.2rem;
+            border-radius: 5px;
+            cursor: pointer;
+            display: none;
+        }
+        #restart-button:hover {
+            background-color: #218838;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Teknoloji Bilgi Yarışması</h1>
+        <div id="quiz-container">
+            <div id="question-box">
+                <div id="question"></div>
+                <div class="options" id="options-box"></div>
+            </div>
+            <div id="result-box"></div>
+            <button id="restart-button">Yeniden Başla</button>
+        </div>
+    </div>
+
+    <script>
+        const sorular = [
+            {
+                soru: "Telefonunuzu şarj etmek için kullanılan kablo ne olarak adlandırılır?",
+                secenekler: ["Ethernet Kablosu", "HDMI Kablosu", "Şarj Kablosu", "USB Kablosu"],
+                dogruCevap: "Şarj Kablosu"
+            },
+            {
+                soru: "E-posta adresinde yer alan '@' işareti ne anlama gelir?",
+                secenekler: ["Sayı", "Konum", "Telefon numarası", "Yazışma"],
+                dogruCevap: "Konum"
+            },
+            {
+                soru: "Bilgisayarın açma/kapama tuşu hangi sembolle gösterilir?",
+                secenekler: ["Daire içinde dikey çizgi", "Üçgen", "Kare", "Yıldız"],
+                dogruCevap: "Daire içinde dikey çizgi"
+            },
+            {
+                soru: "Bir web sitesinin adresinde genellikle ne bulunur?",
+                secenekler: ["www.", "ftp://", "web.", "mail."],
+                dogruCevap: "www."
+            },
+            {
+                soru: "Akıllı telefonunuzdaki uygulamaları nereden indirirsiniz?",
+                secenekler: ["Televizyondan", "Marketten", "Uygulama Mağazasından", "Radyodan"],
+                dogruCevap: "Uygulama Mağazasından"
+            },
+            {
+                soru: "Sosyal medya platformları ne işe yarar?",
+                secenekler: ["Haber okumak", "Film izlemek", "İnsanlarla iletişim kurmak", "Oyun oynamak"],
+                dogruCevap: "İnsanlarla iletişim kurmak"
+            },
+            {
+                soru: "QR kodunu okutmak için ne kullanırsınız?",
+                secenekler: ["Mikrofon", "Kamera", "Kulaklık", "Klavye"],
+                dogruCevap: "Kamera"
+            },
+            {
+                soru: "Akıllı telefonun ekranını kilitlemek için ne kullanılır?",
+                secenekler: ["Şifre", "Kamera", "Hoparlör", "Mikrofon"],
+                dogruCevap: "Şifre"
+            },
+            {
+                soru: "Wi-Fi, evinizdeki hangi cihazı internete bağlar?",
+                secenekler: ["Televizyon", "Buzdolabı", "Çamaşır makinesi", "Telefon ve bilgisayar"],
+                dogruCevap: "Telefon ve bilgisayar"
+            },
+            {
+                soru: "Bir bilgisayarın fare (mouse) ne işe yarar?",
+                secenekler: ["Yazı yazmak", "Ekrandaki öğeleri seçmek", "Müzik dinlemek", "Konuşmak"],
+                dogruCevap: "Ekrandaki öğeleri seçmek"
+            },
+            {
+                soru: "Video görüşme yapmak için kullanılan uygulamalar hangileridir?",
+                secenekler: ["Google Maps, Spotify", "Zoom, WhatsApp", "Netflix, YouTube", "Microsoft Word, Excel"],
+                dogruCevap: "Zoom, WhatsApp"
+            },
+            {
+                soru: "Bir e-postanın sonuna eklenen dosyaya ne denir?",
+                secenekler: ["Gönderici", "Başlık", "Ek", "İmza"],
+                dogruCevap: "Ek"
+            },
+            {
+                soru: "Dijital ortamda bir fotoğrafı silmek ne anlama gelir?",
+                secenekler: ["Fotoğrafı basmak", "Fotoğrafı başkasına göndermek", "Fotoğrafı hafızadan kaldırmak", "Fotoğrafı düzenlemek"],
+                dogruCevap: "Fotoğrafı hafızadan kaldırmak"
+            },
+            {
+                soru: "Bir uygulamayı telefonunuzdan tamamen kaldırmaya ne denir?",
+                secenekler: ["Yüklemek", "Güncellemek", "Kaldırmak (Silmek)", "Paylaşmak"],
+                dogruCevap: "Kaldırmak (Silmek)"
+            },
+            {
+                soru: "Bir web tarayıcısı ne işe yarar?",
+                secenekler: ["Müzik çalmak", "Film izlemek", "İnternette gezinmek", "Oyun oynamak"],
+                dogruCevap: "İnternette gezinmek"
+            },
+            {
+                soru: "Telefonunuzda sesli komut vermek için hangi tuşu kullanırsınız?",
+                secenekler: ["Ses kısma tuşu", "Güç tuşu", "Giriş (Home) tuşu", "Mikrofon tuşu"],
+                dogruCevap: "Mikrofon tuşu"
+            },
+            {
+                soru: "Sosyal medyada birini 'takip etmek' ne anlama gelir?",
+                secenekler: ["Onunla arkadaş olmak", "Onun paylaşımlarını görmek", "Onun telefonunu bilmek", "Onun adresini bulmak"],
+                dogruCevap: "Onun paylaşımlarını görmek"
+            },
+            {
+                soru: "Bir fotoğrafı başkasına göndermek için kullanılan en yaygın yöntem nedir?",
+                secenekler: ["Postayla göndermek", "E-posta veya WhatsApp ile göndermek", "Kitap olarak basmak", "Teyp kaydına almak"],
+                dogruCevap: "E-posta veya WhatsApp ile göndermek"
+            },
+            {
+                soru: "Bir telefon görüşmesi sırasında görüntüyü açmaya ne denir?",
+                secenekler: ["Sesli arama", "Video arama", "Mesajlaşma", "E-posta gönderme"],
+                dogruCevap: "Video arama"
+            },
+            {
+                soru: "Bir uygulamanın yeni bir sürümünü yüklemeye ne denir?",
+                secenekler: ["Silmek", "Güncellemek", "Paylaşmak", "Kaydetmek"],
+                dogruCevap: "Güncellemek"
+            },
+            {
+                soru: "Bir bilgisayarın klavyesi ne işe yarar?",
+                secenekler: ["Resim çizmek", "Ekranı temizlemek", "Yazı yazmak ve komut girmek", "Müzik dinlemek"],
+                dogruCevap: "Yazı yazmak ve komut girmek"
+            },
+            {
+                soru: "Bir bankanın mobil uygulamasını kullanmak ne anlama gelir?",
+                secenekler: ["Bankaya gitmek", "Sadece televizyon izlemek", "Telefondan bankacılık işlemleri yapmak", "Kitap okumak"],
+                dogruCevap: "Telefondan bankacılık işlemleri yapmak"
+            },
+            {
+                soru: "E-devlet şifresi ne işe yarar?",
+                secenekler: ["Alışveriş yapmak", "Devlet hizmetlerine erişmek", "Oyun oynamak", "Müzik dinlemek"],
+                dogruCevap: "Devlet hizmetlerine erişmek"
+            },
+            {
+                soru: "Bir dizüstü bilgisayarın en büyük avantajı nedir?",
+                secenekler: ["Çok ağır olması", "Sabit bir yerde durması", "Taşınabilir olması", "Sadece oyun oynaması"],
+                dogruCevap: "Taşınabilir olması"
+            },
+            {
+                soru: "Bir video izlemek için en popüler platformlardan biri hangisidir?",
+                secenekler: ["Google", "Wikipedia", "YouTube", "Twitter"],
+                dogruCevap: "YouTube"
+            },
+            {
+                soru: "Bir dosyanın üzerine tıklayarak ne yaparsınız?",
+                secenekler: ["Dosyayı silersiniz", "Dosyayı açarsınız", "Dosyayı kopyalarsınız", "Dosyayı yazdırırsınız"],
+                dogruCevap: "Dosyayı açarsınız"
+            },
+            {
+                soru: "İnternetten film izlemek için kullanılan platformlara ne denir?",
+                secenekler: ["E-posta", "Müzik", "Akış (Streaming) Hizmeti", "Oyun"],
+                dogruCevap: "Akış (Streaming) Hizmeti"
+            },
+            {
+                soru: "Akıllı telefonunuzdaki 'Galeri' ne işe yarar?",
+                secenekler: ["Oyun oynamak", "Uygulama indirmek", "Fotoğrafları ve videoları saklamak", "Haber okumak"],
+                dogruCevap: "Fotoğrafları ve videoları saklamak"
+            },
+            {
+                soru: "Bir web sitesinde bir şeye 'tıklamak' ne demektir?",
+                secenekler: ["Fareyle üzerine basmak", "Fareyi hareket ettirmek", "Klavyede yazı yazmak", "Mikrofonla konuşmak"],
+                dogruCevap: "Fareyle üzerine basmak"
+            },
+            {
+                soru: "İnternette alışveriş yaparken ödeme yapmak için ne kullanılır?",
+                secenekler: ["Kredi kartı veya banka kartı", "Nakit para", "Kitap", "Pul"],
+                dogruCevap: "Kredi kartı veya banka kartı"
+            },
+            {
+                soru: "Telefonunuzu sessiz moda almak ne anlama gelir?",
+                secenekler: ["Telefonun kapanması", "Telefonun sesinin kısılması veya tamamen kapatılması", "Telefonun çalması", "Telefonun şarj olması"],
+                dogruCevap: "Telefonun sesinin kısılması veya tamamen kapatılması"
+            },
+            {
+                soru: "Bir telefonda 'uyku modu' ne işe yarar?",
+                secenekler: ["Telefonu tamamen kapatmak", "Ekranı karartarak pil tasarrufu sağlamak", "Telefonu şarj etmek", "Telefonu temizlemek"],
+                dogruCevap: "Ekranı karartarak pil tasarrufu sağlamak"
+            },
+            {
+                soru: "Online olarak birine para göndermek için hangi uygulamalar kullanılır?",
+                secenekler: ["Google Haritalar", "Banka uygulamaları", "Hesap Makinesi", "Hava Durumu"],
+                dogruCevap: "Banka uygulamaları"
+            },
+            {
+                soru: "Bir bilgisayarın 'masaüstü' ne demektir?",
+                secenekler: ["Bilgisayarın üzerindeki masa", "Bilgisayar ekranındaki ana ekran", "Klavye", "Fare"],
+                dogruCevap: "Bilgisayar ekranındaki ana ekran"
+            },
+            {
+                soru: "Bir 'şifre' ne için kullanılır?",
+                secenekler: ["Eşyaları taşımak", "Gizli bilgileri korumak", "Yemek pişirmek", "Bisiklet sürmek"],
+                dogruCevap: "Gizli bilgileri korumak"
+            },
+            {
+                soru: "Telefonda ekran görüntüsü (screenshot) almak ne demektir?",
+                secenekler: ["Ekranı silmek", "Ekranı fotoğraf çekmek", "Ekranı kapatmak", "Ekranı çevirmek"],
+                dogruCevap: "Ekranı fotoğraf çekmek"
+            },
+            {
+                soru: "Bir web sitesini 'favorilere eklemek' ne işe yarar?",
+                secenekler: ["Siteyi silmek", "Siteyi tekrar kolayca bulmak", "Siteyi başkasına göndermek", "Siteye para ödemek"],
+                dogruCevap: "Siteyi tekrar kolayca bulmak"
+            },
+            {
+                soru: "Telefonunuzdaki 'Haritalar' uygulaması ne işe yarar?",
+                secenekler: ["Müzik dinlemek", "Yol tarifi almak", "Oyun oynamak", "Hava durumuna bakmak"],
+                dogruCevap: "Yol tarifi almak"
+            },
+            {
+                soru: "E-posta gönderirken 'Kime' (To) kısmına ne yazılır?",
+                secenekler: ["Göndericinin adı", "Alıcının e-posta adresi", "E-postanın konusu", "E-postanın tarihi"],
+                dogruCevap: "Alıcının e-posta adresi"
+            },
+            {
+                soru: "Bir bilgisayarı 'kapatmak' ne demektir?",
+                secenekler: ["Kabloları çekmek", "Kapanma seçeneğiyle tamamen durdurmak", "Ekranı temizlemek", "Fareyi çekmek"],
+                dogruCevap: "Kapanma seçeneğiyle tamamen durdurmak"
+            },
+            {
+                soru: "WhatsApp'ta grup oluşturmak ne işe yarar?",
+                secenekler: ["Sadece bir kişiyle konuşmak", "Birden fazla kişiyle aynı anda konuşmak", "Film izlemek", "Oyun oynamak"],
+                dogruCevap: "Birden fazla kişiyle aynı anda konuşmak"
+            },
+            {
+                soru: "Bir bankanın mobil uygulamasından 'havale' ne anlama gelir?",
+                secenekler: ["Para çekmek", "Kendi hesabınızdan başka birinin hesabına para göndermek", "Para yatırmak", "Para biriktirmek"],
+                dogruCevap: "Kendi hesabınızdan başka birinin hesabına para göndermek"
+            },
+            {
+                soru: "Telefonunuzu ‘uçak modu’na almak ne işe yarar?",
+                secenekler: ["Telefonun daha hızlı şarj olmasını sağlamak", "Tüm kablosuz bağlantıları (internet, arama vb.) kapatmak", "Telefonu kapatmak", "Telefonun kamerasını açmak"],
+                dogruCevap: "Tüm kablosuz bağlantıları (internet, arama vb.) kapatmak"
+            },
+            {
+                soru: "Bir akıllı telefonun ana ekranında bulunan küçük resimlere ne ad verilir?",
+                secenekler: ["Fotoğraf", "Simge (ikon)", "Dosya", "Çerçeve"],
+                dogruCevap: "Simge (ikon)"
+            },
+            {
+                soru: "İnternette bir şey aramak için kullanılan araçlara ne denir?",
+                secenekler: ["Hesap makinesi", "Arama motoru", "Kamera", "Telefon"],
+                dogruCevap: "Arama motoru"
+            },
+            {
+                soru: "Bir e-postada 'Konu' (Subject) bölümüne ne yazılır?",
+                secenekler: ["E-postanın gönderildiği tarih", "E-postanın başlığı veya içeriği", "E-postanın saati", "E-postayı yazanın adı"],
+                dogruCevap: "E-postanın başlığı veya içeriği"
+            },
+            {
+                soru: "Telefonunuzun 'veri' (data) bağlantısını açmak ne işe yarar?",
+                secenekler: ["Telefonun pilini şarj etmek", "Telefonu kapatmak", "Telefonun internete girmesini sağlamak", "Telefonun sesini kısmak"],
+                dogruCevap: "Telefonun internete girmesini sağlamak"
+            },
+            {
+                soru: "Bir akıllı telefonda 'bluetooth' ne işe yarar?",
+                secenekler: ["Fotoğraf çekmek", "Kablosuz kulaklık veya hoparlör gibi cihazlara bağlanmak", "Telefonu şarj etmek", "Oyun oynamak"],
+                dogruCevap: "Kablosuz kulaklık veya hoparlör gibi cihazlara bağlanmak"
+            },
+            {
+                soru: "Bir fotoğrafı 'kırpmak' ne demektir?",
+                secenekler: ["Fotoğrafın boyutunu küçültmek", "Fotoğrafı silmek", "Fotoğrafın bir kısmını kesmek", "Fotoğrafı başkasına göndermek"],
+                dogruCevap: "Fotoğrafın bir kısmını kesmek"
+            },
+            {
+                soru: "Bir bilgisayarın 'çöp kutusu' ne işe yarar?",
+                secenekler: ["Silinen dosyaları geçici olarak saklamak", "İçine yeni dosyalar eklemek", "Bilgisayarı temizlemek", "Yazı yazmak"],
+                dogruCevap: "Silinen dosyaları geçici olarak saklamak"
+            },
+            {
+                soru: "WhatsApp'ta birine 'sesli mesaj' göndermek ne anlama gelir?",
+                secenekler: ["Yazı yazmak", "Konuşarak mesaj kaydetmek", "Video göndermek", "Fotoğraf göndermek"],
+                dogruCevap: "Konuşarak mesaj kaydetmek"
+            },
+            {
+                soru: "Bir telefonda 'GPS' ne işe yarar?",
+                secenekler: ["Müzik dinlemek", "Telefonun yerini belirlemek", "Oyun oynamak", "Telefonu şarj etmek"],
+                dogruCevap: "Telefonun yerini belirlemek"
+            },
+            {
+                soru: "Bir bilgisayardaki 'Yazıcı' (Printer) ne işe yarar?",
+                secenekler: ["Ekrana yazı yazmak", "Müzik çalmak", "Dijital belgeleri kağıda basmak", "Film izlemek"],
+                dogruCevap: "Dijital belgeleri kağıda basmak"
+            },
+            {
+                soru: "Netflix, BluTV, Exxen gibi platformlar ne amaçla kullanılır?",
+                secenekler: ["E-posta göndermek", "Dizi ve film izlemek", "Haber okumak", "Oyun oynamak"],
+                dogruCevap: "Dizi ve film izlemek"
+            },
+            {
+                soru: "Telefonunuzu 'formatlamak' ne anlama gelir?",
+                secenekler: ["Telefonu temizlemek", "Tüm bilgileri silip ilk haline döndürmek", "Telefonu şarj etmek", "Telefonu kapatmak"],
+                dogruCevap: "Tüm bilgileri silip ilk haline döndürmek"
+            },
+            {
+                soru: "Instagram ve Facebook ne tür uygulamalardır?",
+                secenekler: ["Harita uygulamaları", "E-ticaret uygulamaları", "Sosyal medya uygulamaları", "Bankacılık uygulamaları"],
+                dogruCevap: "Sosyal medya uygulamaları"
+            },
+            {
+                soru: "Akıllı telefonunuzdaki 'Hesap Makinesi' ne işe yarar?",
+                secenekler: ["Yazı yazmak", "Matematiksel işlemler yapmak", "Fotoğraf çekmek", "Film izlemek"],
+                dogruCevap: "Matematiksel işlemler yapmak"
+            },
+            {
+                soru: "Google Chrome, Mozilla Firefox ve Safari ne tür programlardır?",
+                secenekler: ["Oyun programları", "Web tarayıcıları", "Müzik dinleme programları", "Resim düzenleme programları"],
+                dogruCevap: "Web tarayıcıları"
+            },
+            {
+                soru: "Bilgisayarın 'RAM' bellek ne işe yarar?",
+                secenekler: ["Fotoğraf çekmek", "Telefonu şarj etmek", "Geçici verileri saklamak", "Yazı yazmak"],
+                dogruCevap: "Geçici verileri saklamak"
+            },
+            {
+                soru: "Telefonunuzdaki 'Uçak modu'nda hangi özellikler kapanır?",
+                secenekler: ["Sadece Wi-Fi", "Sadece mobil veri", "Wi-Fi, mobil veri, arama ve SMS", "Sadece Bluetooth"],
+                dogruCevap: "Wi-Fi, mobil veri, arama ve SMS"
+            },
+            {
+                soru: "Bir videoyu 'durdurmak' veya 'oynatmak' için kullanılan sembol genellikle nedir?",
+                secenekler: ["Dörtgen", "Üçgen", "Daire", "Kare"],
+                dogruCevap: "Üçgen"
+            },
+            {
+                soru: "Bilgisayarınızda bir dosyanın uzantısı neyi gösterir?",
+                secenekler: ["Dosyanın adı", "Dosyanın türü", "Dosyanın boyutu", "Dosyanın tarihi"],
+                dogruCevap: "Dosyanın türü"
+            },
+            {
+                soru: "Telefonunuzu 'şarjdan çıkarmak' ne demektir?",
+                secenekler: ["Telefonun şarj aletini prizden çekmek", "Telefonun pilini bitirmek", "Telefonu kapatmak", "Telefonun sesini kısmak"],
+                dogruCevap: "Telefonun şarj aletini prizden çekmek"
+            },
+            {
+                soru: "Bir telefonda 'SIM kart' ne işe yarar?",
+                secenekler: ["Fotoğraf çekmek", "Telefonu şarj etmek", "Telefonun arama ve mesajlaşma gibi temel hizmetlerini sağlar", "Oyun oynamak"],
+                dogruCevap: "Telefonun arama ve mesajlaşma gibi temel hizmetlerini sağlar"
+            },
+            {
+                soru: "Bir e-postayı 'yanıtlamak' ne anlama gelir?",
+                secenekler: ["E-postayı silmek", "E-postayı başkasına göndermek", "E-postayı gönderen kişiye cevap yazmak", "E-postayı okumak"],
+                dogruCevap: "E-postayı gönderen kişiye cevap yazmak"
+            },
+            {
+                soru: "Bir bilgisayarın 'klavye'sinde en büyük tuş hangisidir?",
+                secenekler: ["Enter", "Shift", "Backspace", "Space (Boşluk)"],
+                dogruCevap: "Space (Boşluk)"
+            },
+            {
+                soru: "Online bankacılık kullanırken 'güvenlik' neden önemlidir?",
+                secenekler: ["Sadece fotoğraf çekmek için", "Kişisel bilgileri ve parayı korumak için", "Oyun oynamak için", "Hava durumuna bakmak için"],
+                dogruCevap: "Kişisel bilgileri ve parayı korumak için"
+            },
+            {
+                soru: "Telefonunuzda 'konum' özelliğini açmak ne işe yarar?",
+                secenekler: ["Telefonu şarj etmek", "Uygulamaların yerinizi bulmasına yardımcı olmak", "Telefonun sesini açmak", "Ekranı karartmak"],
+                dogruCevap: "Uygulamaların yerinizi bulmasına yardımcı olmak"
+            },
+            {
+                soru: "Bir bilgisayarın 'yazılım'ı ne anlama gelir?",
+                secenekler: ["Bilgisayarın donanımsal parçaları", "Bilgisayarın çalışmasını sağlayan programlar", "Bilgisayarın masası", "Bilgisayarın sesi"],
+                dogruCevap: "Bilgisayarın çalışmasını sağlayan programlar"
+            },
+            {
+                soru: "Bir e-postayı 'göndermek' için hangi tuşa basılır?",
+                secenekler: ["Sil", "İlet", "Yanıtla", "Gönder"],
+                dogruCevap: "Gönder"
+            },
+            {
+                soru: "Telefonunuzda 'Wi-Fi'yi kapatmak ne anlama gelir?",
+                secenekler: ["Telefondan interneti kesmek", "Telefonu şarj etmek", "Telefonu tamamen kapatmak", "Telefonun sesini kısmak"],
+                dogruCevap: "Telefondan interneti kesmek"
+            },
+            {
+                soru: "Bilgisayarda bir dosyayı 'kopyala-yapıştır' yapmak ne işe yarar?",
+                secenekler: ["Dosyayı silmek", "Dosyayı çoğaltmak", "Dosyayı başka bir yere taşımak", "Dosyanın adını değiştirmek"],
+                dogruCevap: "Dosyayı çoğaltmak"
+            },
+            {
+                soru: "Akıllı telefonunuzun 'şarjı bitti' ne demektir?",
+                secenekler: ["Telefonun pilinin tükendiği", "Telefonun bozulduğu", "Telefonun kapandığı", "Telefonun sesi çıktığı"],
+                dogruCevap: "Telefonun pilinin tükendiği"
+            },
+            {
+                soru: "Bir web sitesindeki 'link' (bağlantı) ne işe yarar?",
+                secenekler: ["Müzik dinletmek", "Başka bir sayfaya yönlendirmek", "Yazı yazmak", "Resim çizmek"],
+                dogruCevap: "Başka bir sayfaya yönlendirmek"
+            },
+            {
+                soru: "Telefonunuzda 'ekran parlaklığı' ne işe yarar?",
+                secenekler: ["Telefonu şarj etmek", "Ekranın ışık seviyesini ayarlamak", "Telefonu kapatmak", "Telefonun sesini ayarlamak"],
+                dogruCevap: "Ekranın ışık seviyesini ayarlamak"
+            },
+            {
+                soru: "Bir bilgisayarda 'Shift' tuşu ne işe yarar?",
+                secenekler: ["Sadece büyük harf yazmak", "Sadece sayı yazmak", "Küçük harf yazmak", "Büyük harf ve semboller yazmak"],
+                dogruCevap: "Büyük harf ve semboller yazmak"
+            },
+            {
+                soru: "Bir e-postaya 'CC' eklemek ne anlama gelir?",
+                secenekler: ["Gizli bir şekilde göndermek", "E-postayı sadece kendinize göndermek", "E-postayı bir kişiye daha kopyalamak", "E-postayı silmek"],
+                dogruCevap: "E-postayı bir kişiye daha kopyalamak"
+            },
+            {
+                soru: "Bir bilgisayarın 'donanım'ı ne anlama gelir?",
+                secenekler: ["Bilgisayarın içindeki programlar", "Bilgisayarın fiziksel parçaları (klavye, fare, monitör vb.)", "Bilgisayarın sesi", "Bilgisayarın rengi"],
+                dogruCevap: "Bilgisayarın fiziksel parçaları (klavye, fare, monitör vb.)"
+            },
+            {
+                soru: "Bir internet sitesine 'giriş yapmak' için ne kullanılır?",
+                secenekler: ["Kamera", "Kullanıcı adı ve şifre", "Mikrofon", "Hoparlör"],
+                dogruCevap: "Kullanıcı adı ve şifre"
+            },
+            {
+                soru: "Bir telefonda 'Rehber' ne işe yarar?",
+                secenekler: ["Film izlemek", "Kişilerin telefon numaralarını ve adlarını kaydetmek", "Oyun oynamak", "Müzik dinlemek"],
+                dogruCevap: "Kişilerin telefon numaralarını ve adlarını kaydetmek"
+            },
+            {
+                soru: "Bir 'video' ne demektir?",
+                secenekler: ["Sadece ses kaydı", "Sadece resim", "Hem ses hem de hareketli resim kaydı", "Sadece yazı"],
+                dogruCevap: "Hem ses hem de hareketli resim kaydı"
+            },
+            {
+                soru: "Akıllı telefonunuzdaki 'El Feneri' ne işe yarar?",
+                secenekler: ["Sadece fotoğraf çekmek", "Karanlıkta yolunuzu aydınlatmak", "Telefonu şarj etmek", "Telefonun sesini açmak"],
+                dogruCevap: "Karanlıkta yolunuzu aydınlatmak"
+            },
+            {
+                soru: "Bir bilgisayarı 'yeniden başlatmak' ne anlama gelir?",
+                secenekler: ["Bilgisayarı tamamen kapatmak", "Bilgisayarı kapatıp tekrar açmak", "Bilgisayarı temizlemek", "Bilgisayarın sesini kısmak"],
+                dogruCevap: "Bilgisayarı kapatıp tekrar açmak"
+            },
+            {
+                soru: "Bir telefonda 'kilidi açmak' ne anlama gelir?",
+                secenekler: ["Telefonu çalmak", "Telefonun ekranını aktif hale getirmek", "Telefonu şarj etmek", "Telefonu kapatmak"],
+                dogruCevap: "Telefonun ekranını aktif hale getirmek"
+            },
+            {
+                soru: "E-posta gönderirken 'BCC' eklemek ne anlama gelir?",
+                secenekler: ["Herkese açık olarak göndermek", "Gizli alıcılara göndermek", "Sadece kendinize göndermek", "Herkesin birbirini görmesini sağlamak"],
+                dogruCevap: "Gizli alıcılara göndermek"
+            },
+            {
+                soru: "Bir akıllı telefonun 'Pil tasarrufu modu' ne işe yarar?",
+                secenekler: ["Telefonu daha hızlı şarj etmek", "Pil ömrünü uzatmak için bazı özellikleri kısmak", "Telefonu tamamen kapatmak", "Ekranı daha parlak yapmak"],
+                dogruCevap: "Pil ömrünü uzatmak için bazı özellikleri kısmak"
+            },
+            {
+                soru: "Bir dosyayı 'indirmek' (download) ne anlama gelir?",
+                secenekler: ["Dosyayı internete yüklemek", "Dosyayı bilgisayara veya telefona kaydetmek", "Dosyayı silmek", "Dosyanın adını değiştirmek"],
+                dogruCevap: "Dosyayı bilgisayara veya telefona kaydetmek"
+            },
+            {
+                soru: "Telefonunuzda 'ekranı döndürme' ne işe yarar?",
+                secenekler: ["Telefonu şarj etmek", "Ekrandaki görüntüyü yatay veya dikey yapmak", "Telefonu kapatmak", "Telefonun sesini açmak"],
+                dogruCevap: "Ekrandaki görüntüyü yatay veya dikey yapmak"
+            },
+            {
+                soru: "Bir bilgisayarda 'Ctrl + C' ne işe yarar?",
+                secenekler: ["Kesmek", "Yapıştırmak", "Kopyalamak", "Geri almak"],
+                dogruCevap: "Kopyalamak"
+            },
+            {
+                soru: "Telefonunuzdaki 'uygulamalar' ne işe yarar?",
+                secenekler: ["Sadece film izlemek", "Farklı görevleri gerçekleştirmek", "Sadece oyun oynamak", "Telefonu şarj etmek"],
+                dogruCevap: "Farklı görevleri gerçekleştirmek"
+            },
+            {
+                soru: "E-posta gönderirken 'İlet' (Forward) ne anlama gelir?",
+                secenekler: ["E-postayı silmek", "E-postayı yeni bir kişiye göndermek", "E-postayı yanıtlamak", "E-postayı kaydetmek"],
+                dogruCevap: "E-postayı yeni bir kişiye göndermek"
+            },
+            {
+                soru: "Bir web sitesinde 'kayıt olmak' ne demektir?",
+                secenekler: ["Siteden çıkış yapmak", "Siteyi tekrar ziyaret etmek", "Siteye üye olmak", "Siteyi silmek"],
+                dogruCevap: "Siteye üye olmak"
+            },
+            {
+                soru: "Bir 'siber saldırı' ne demektir?",
+                secenekler: ["Birine e-posta göndermek", "İnternet üzerinden bilgisayar sistemlerine zarar verme", "Oyun oynamak", "Film izlemek"],
+                dogruCevap: "İnternet üzerinden bilgisayar sistemlerine zarar verme"
+            },
+            {
+                soru: "Telefonunuzdaki 'Hava durumu' uygulaması ne işe yarar?",
+                secenekler: ["Sadece film izlemek", "Şehrinizdeki hava durumunu öğrenmek", "Oyun oynamak", "Telefonu şarj etmek"],
+                dogruCevap: "Şehrinizdeki hava durumunu öğrenmek"
+            },
+            {
+                soru: "Bir 'URL' ne demektir?",
+                secenekler: ["E-posta adresi", "Web sitesinin adresi", "Dosya adı", "Telefon numarası"],
+                dogruCevap: "Web sitesinin adresi"
+            },
+            {
+                soru: "WhatsApp'ta bir fotoğrafı 'Durum'a eklemek ne anlama gelir?",
+                secenekler: ["Fotoğrafı silmek", "Fotoğrafı birine göndermek", "Fotoğrafı 24 saat boyunca herkesin görmesi için paylaşmak", "Fotoğrafı kaydetmek"],
+                dogruCevap: "Fotoğrafı 24 saat boyunca herkesin görmesi için paylaşmak"
+            },
+            {
+                soru: "Bir bilgisayarın 'yazılım güncellemesi' ne işe yarar?",
+                secenekler: ["Yazılımı silmek", "Yazılımın yeni özelliklerini ve düzeltmelerini yüklemek", "Yazılımı kapatmak", "Yazılımı açmak"],
+                dogruCevap: "Yazılımın yeni özelliklerini ve düzeltmelerini yüklemek"
+            },
+            {
+                soru: "Telefonda 'zil sesi' ne işe yarar?",
+                secenekler: ["Telefonu sessiz yapmak", "Gelen aramalarda ses çıkarmasını sağlamak", "Telefonu kapatmak", "Film izlemek"],
+                dogruCevap: "Gelen aramalarda ses çıkarmasını sağlamak"
+            },
+            {
+                soru: "Bir bilgisayarın 'ekran koruyucu'su ne işe yarar?",
+                secenekler: ["Sadece film izlemek", "Ekrana zarar gelmesini önlemek için çeşitli görseller sunmak", "Ekrana yazı yazmak", "Ekranı temizlemek"],
+                dogruCevap: "Ekrana zarar gelmesini önlemek için çeşitli görseller sunmak"
+            },
+            {
+                soru: "Bir web sitesini 'yönlendirmek' (redirect) ne anlama gelir?",
+                secenekler: ["Siteyi silmek", "Siteyi başka bir adrese yönlendirmek", "Siteye yeni bir sayfa eklemek", "Siteyi kapatmak"],
+                dogruCevap: "Siteyi başka bir adrese yönlendirmek"
+            },
+            {
+                soru: "Telefonunuzdaki 'Alarm' ne işe yarar?",
+                secenekler: ["Sadece fotoğraf çekmek", "Belirlenen saatte sesli uyarı vermek", "Telefonu şarj etmek", "Telefonun sesini kısmak"],
+                dogruCevap: "Belirlenen saatte sesli uyarı vermek"
+            },
+            {
+                soru: "Bir bilgisayarın 'CD/DVD sürücüsü' ne işe yarar?",
+                secenekler: ["Sadece müzik dinlemek", "Sadece film izlemek", "CD ve DVD'leri okumak", "Sadece oyun oynamak"],
+                dogruCevap: "CD ve DVD'leri okumak"
+            },
+            {
+                soru: "Bir e-postayı 'çöp kutusuna' atmak ne anlama gelir?",
+                secenekler: ["E-postayı kaydetmek", "E-postayı silmek", "E-postayı yanıtlamak", "E-postayı başka birine göndermek"],
+                dogruCevap: "E-postayı silmek"
+            },
+            {
+                soru: "Telefonunuzda 'bildirim' ne işe yarar?",
+                secenekler: ["Telefonu şarj etmek", "Yeni bir mesaj, arama veya gelişmeden haberdar olmak", "Telefonu kapatmak", "Telefonun sesini kısmak"],
+                dogruCevap: "Yeni bir mesaj, arama veya gelişmeden haberdar olmak"
+            },
+            {
+                soru: "Bir bilgisayarın 'ekranı' ne işe yarar?",
+                secenekler: ["Sadece yazı yazmak", "Görsel bilgileri göstermek", "Sadece ses çıkarmak", "Sadece oyun oynamak"],
+                dogruCevap: "Görsel bilgileri göstermek"
+            },
+            {
+                soru: "Bir telefonda 'uygulama simgesi' neyi temsil eder?",
+                secenekler: ["Uygulamanın rengi", "Uygulamanın adı", "Uygulamanın işlevi", "Uygulamanın fiyatı"],
+                dogruCevap: "Uygulamanın işlevi"
+            },
+            {
+                soru: "İnternette 'güvenliğiniz' için neye dikkat etmelisiniz?",
+                secenekler: ["Sadece resimlere bakmak", "Bilmediğiniz sitelerden dosya indirmemek ve kişisel bilgileri paylaşmamak", "Sadece oyun oynamak", "Her şeye tıklamak"],
+                dogruCevap: "Bilmediğiniz sitelerden dosya indirmemek ve kişisel bilgileri paylaşmamak"
+            },
+            {
+                soru: "Bir e-posta adresindeki 'hotmail.com' veya 'gmail.com' neyi gösterir?",
+                secenekler: ["E-postanın konusu", "E-posta servis sağlayıcısı", "E-postayı gönderen kişi", "E-postayı alan kişi"],
+                dogruCevap: "E-posta servis sağlayıcısı"
+            },
+            {
+                soru: "Telefonunuzu 'yeniden başlatmak' ne işe yarar?",
+                secenekler: ["Telefonu tamamen kapatmak", "Küçük sorunları gidermek için telefonu kapatıp açmak", "Telefonu şarj etmek", "Telefonun sesini kısmak"],
+                dogruCevap: "Küçük sorunları gidermek için telefonu kapatıp açmak"
+            },
+            {
+                soru: "Bir bilgisayarda 'Ctrl + V' ne işe yarar?",
+                secenekler: ["Kesmek", "Yapıştırmak", "Kopyalamak", "Geri almak"],
+                dogruCevap: "Yapıştırmak"
+            },
+            {
+                soru: "Bir e-posta 'taslak' (draft) ne anlama gelir?",
+                secenekler: ["Gönderilmiş e-posta", "Silinmiş e-posta", "Henüz gönderilmemiş e-posta", "Alınmış e-posta"],
+                dogruCevap: "Henüz gönderilmemiş e-posta"
+            },
+            {
+                soru: "Telefonunuzda 'parmak izi okuyucu' ne için kullanılır?",
+                secenekler: ["Sadece fotoğraf çekmek", "Telefonun kilidini açmak veya ödeme yapmak", "Telefonu şarj etmek", "Telefonun sesini kısmak"],
+                dogruCevap: "Telefonun kilidini açmak veya ödeme yapmak"
+            },
+            {
+                soru: "Bir bilgisayardaki 'Ses' (Audio) jakı ne işe yarar?",
+                secenekler: ["Fareyi bağlamak", "Klavyeyi bağlamak", "Hoparlör veya kulaklık bağlamak", "Yazıcıyı bağlamak"],
+                dogruCevap: "Hoparlör veya kulaklık bağlamak"
+            },
+            {
+                soru: "Bir e-postayı 'spam' olarak işaretlemek ne anlama gelir?",
+                secenekler: ["E-postayı kaydetmek", "E-postayı okumak", "E-postanın gereksiz veya tehlikeli olduğunu belirtmek", "E-postayı yanıtlamak"],
+                dogruCevap: "E-postanın gereksiz veya tehlikeli olduğunu belirtmek"
+            },
+            {
+                soru: "Telefonunuzda 'uygulama izinleri' neden istenir?",
+                secenekler: ["Uygulamayı silmek için", "Uygulamayı açmak için", "Uygulamanın telefondaki özelliklere erişmesi için", "Uygulamayı kapatmak için"],
+                dogruCevap: "Uygulamanın telefondaki özelliklere erişmesi için"
+            },
+            {
+                soru: "Bir web sitesinde bir şeye 'yazmak' için ne kullanılır?",
+                secenekler: ["Fare", "Klavye", "Monitör", "Hoparlör"],
+                dogruCevap: "Klavye"
+            },
+            {
+                soru: "Akıllı telefonunuzdaki 'Takvim' ne işe yarar?",
+                secenekler: ["Sadece film izlemek", "Tarihleri ve randevuları takip etmek", "Oyun oynamak", "Telefonu şarj etmek"],
+                dogruCevap: "Tarihleri ve randevuları takip etmek"
+            },
+            {
+                soru: "Bir dosya 'sıkıştırılmak' (zip) ne anlama gelir?",
+                secenekler: ["Dosyanın boyutunu artırmak", "Dosyanın boyutunu küçültmek", "Dosyayı silmek", "Dosyanın adını değiştirmek"],
+                dogruCevap: "Dosyanın boyutunu küçültmek"
+            },
+            {
+                soru: "Telefonunuzda 'veri kullanımı' ne demektir?",
+                secenekler: ["Telefonun şarjı", "Telefonun ne kadar internet kullandığı", "Telefonun boyutu", "Telefonun rengi"],
+                dogruCevap: "Telefonun ne kadar internet kullandığı"
+            },
+            {
+                soru: "Bir bilgisayarda 'Ctrl + Z' ne işe yarar?",
+                secenekler: ["Kesmek", "Yapıştırmak", "Geri almak", "Kopyalamak"],
+                dogruCevap: "Geri almak"
+            },
+            {
+                soru: "E-posta gönderirken 'Imza' (Signature) ne işe yarar?",
+                secenekler: ["E-postayı silmek", "E-postanın altına otomatik olarak eklenen metin", "E-postanın başlığı", "E-postanın tarihi"],
+                dogruCevap: "E-postanın altına otomatik olarak eklenen metin"
+            },
+            {
+                soru: "Telefonunuzdaki 'Bluetooth'u kapatmak ne anlama gelir?",
+                secenekler: ["Telefonu kapatmak", "Kablosuz kulaklık gibi cihazlarla bağlantıyı kesmek", "Telefonu şarj etmek", "Telefonun sesini açmak"],
+                dogruCevap: "Kablosuz kulaklık gibi cihazlarla bağlantıyı kesmek"
+            },
+            {
+                soru: "Bir bilgisayarın 'Hoparlör'leri ne işe yarar?",
+                secenekler: ["Sadece yazı yazmak", "Sesleri dışarı vermek", "Sadece resim göstermek", "Sadece oyun oynamak"],
+                dogruCevap: "Sesleri dışarı vermek"
+            },
+            {
+                soru: "Bir 'sanal klavye' ne işe yarar?",
+                secenekler: ["Sadece oyun oynamak", "Ekranda beliren klavyeyle yazı yazmak", "Sadece film izlemek", "Sadece resim çizmek"],
+                dogruCevap: "Ekranda beliren klavyeyle yazı yazmak"
+            },
+            {
+                soru: "Akıllı telefonunuzdaki 'Sağlık' uygulaması ne işe yarar?",
+                secenekler: ["Film izlemek", "Adım sayısını, uyku düzenini takip etmek", "Oyun oynamak", "E-posta göndermek"],
+                dogruCevap: "Adım sayısını, uyku düzenini takip etmek"
+            },
+            {
+                soru: "Bir dosyayı 'yüklemek' (upload) ne anlama gelir?",
+                secenekler: ["Dosyayı silmek", "Dosyayı bilgisayara veya telefona kaydetmek", "Dosyayı internete göndermek", "Dosyanın adını değiştirmek"],
+                dogruCevap: "Dosyayı internete göndermek"
+            },
+            {
+                soru: "Telefonunuzda 'sessize almak' ne anlama gelir?",
+                secenekler: ["Telefonun sesini tamamen kapatmak", "Telefonu şarj etmek", "Telefonu tamamen kapatmak", "Telefonun sesini açmak"],
+                dogruCevap: "Telefonun sesini tamamen kapatmak"
+            },
+            {
+                soru: "Bir bilgisayarda 'dosya' ne demektir?",
+                secenekler: ["Bilgisayarın masası", "Bilgisayarda saklanan bilgi veya veri", "Bilgisayarın klavyesi", "Bilgisayarın ekranı"],
+                dogruCevap: "Bilgisayarda saklanan bilgi veya veri"
+            },
+            {
+                soru: "E-posta gönderirken 'BCC' ne anlama gelir?",
+                secenekler: ["Gizli kopya", "Ek", "Konu", "Gönderen"],
+                dogruCevap: "Gizli kopya"
+            },
+            {
+                soru: "Bir akıllı telefonun 'pil ömrü' ne demektir?",
+                secenekler: ["Telefonun boyutu", "Telefonun ne kadar dayanacağı", "Telefonun ağırlığı", "Telefonun fiyatı"],
+                dogruCevap: "Telefonun ne kadar dayanacağı"
+            },
+            {
+                soru: "Telefonunuzda 'ekran süresi' ne işe yarar?",
+                secenekler: ["Sadece film izlemek", "Telefonu ne kadar kullandığınızı gösterir", "Telefonu şarj etmek", "Telefonu kapatmak"],
+                dogruCevap: "Telefonu ne kadar kullandığınızı gösterir"
+            },
+            {
+                soru: "Bir bilgisayarın 'işletim sistemi' ne işe yarar?",
+                secenekler: ["Sadece oyun oynamak", "Bilgisayarın temel işlevlerini yönetir", "Sadece film izlemek", "Sadece müzik dinlemek"],
+                dogruCevap: "Bilgisayarın temel işlevlerini yönetir"
+            },
+            {
+                soru: "Bir e-postayı 'okunmamış' olarak işaretlemek ne işe yarar?",
+                secenekler: ["E-postayı silmek", "E-postayı kaydetmek", "E-postanın okunduğunu unutmamak için işaretlemek", "E-postayı yanıtlamak"],
+                dogruCevap: "E-postanın okunduğunu unutmamak için işaretlemek"
+            },
+            {
+                soru: "Telefonunuzdaki 'kamera' ne işe yarar?",
+                secenekler: ["Sadece yazı yazmak", "Fotoğraf ve video çekmek", "Sadece müzik dinlemek", "Telefonu şarj etmek"],
+                dogruCevap: "Fotoğraf ve video çekmek"
+            },
+            {
+                soru: "Bir 'tablet bilgisayar' ne demektir?",
+                secenekler: ["Sadece klavyesi olan bilgisayar", "Küçük ekranlı bir televizyon", "Dokunmatik ekranlı, taşınabilir bir bilgisayar", "Büyük bir cep telefonu"],
+                dogruCevap: "Dokunmatik ekranlı, taşınabilir bir bilgisayar"
+            },
+            {
+                soru: "WhatsApp'ta bir 'durum' paylaşımı ne zaman kaybolur?",
+                secenekler: ["Asla kaybolmaz", "24 saat sonra", "1 saat sonra", "1 hafta sonra"],
+                dogruCevap: "24 saat sonra"
+            },
+            {
+                soru: "Bir bilgisayarda 'dosya gezgini' ne işe yarar?",
+                secenekler: ["Sadece film izlemek", "Dosyaları ve klasörleri yönetmek", "Oyun oynamak", "Müzik dinlemek"],
+                dogruCevap: "Dosyaları ve klasörleri yönetmek"
+            },
+            {
+                soru: "Telefonunuzdaki 'Bluetooth' sembolü genellikle nasıl görünür?",
+                secenekler: ["Daire içinde bir 'i' harfi", "B harfi", "E harfi", "Bluetooth runesi (küçük bir üç dişli sembol)"],
+                dogruCevap: "Bluetooth runesi (küçük bir üç dişli sembol)"
+            },
+            {
+                soru: "Bir 'akıllı saat' ne işe yarar?",
+                secenekler: ["Sadece zamanı göstermek", "Sadece telefonla bağlantı kurmak", "Telefonun bazı özelliklerini bilekten kullanmak ve sağlık verilerini takip etmek", "Sadece müzik çalmak"],
+                dogruCevap: "Telefonun bazı özelliklerini bilekten kullanmak ve sağlık verilerini takip etmek"
+            },
+            {
+                soru: "Bir e-posta adresindeki 'at' işareti ne işe yarar?",
+                secenekler: ["Kullanıcı adını soyadından ayırmak için", "Kullanıcı adını e-posta servisinden ayırmak için", "Kullanıcı adını şifreden ayırmak için", "Kullanıcı adını telefon numarasından ayırmak için"],
+                dogruCevap: "Kullanıcı adını e-posta servisinden ayırmak için"
+            },
+            {
+                soru: "Telefonunuzdaki 'Mikrofon' ne işe yarar?",
+                secenekler: ["Ses kaydetmek veya sesli komut vermek", "Sadece resim çekmek", "Sadece video izlemek", "Sadece yazı yazmak"],
+                dogruCevap: "Ses kaydetmek veya sesli komut vermek"
+            },
+            {
+                soru: "Bir bilgisayarın 'geri dönüşüm kutusu' ne işe yarar?",
+                secenekler: ["Silinen dosyaları geçici olarak tutmak", "Yeni dosyaları depolamak", "Bilgisayarı temizlemek", "Yazı yazmak"],
+                dogruCevap: "Silinen dosyaları geçici olarak tutmak"
+            },
+            {
+                soru: "Bir 'uygulama' (app) nedir?",
+                secenekler: ["Sadece oyun", "Telefonda veya bilgisayarda belirli bir işi yapmak için kullanılan program", "Sadece müzik", "Sadece film"],
+                dogruCevap: "Telefonda veya bilgisayarda belirli bir işi yapmak için kullanılan program"
+            },
+            {
+                soru: "Telefonunuzda 'uçak modu'ndayken hangi özellik çalışmaya devam eder?",
+                secenekler: ["Arama", "Wi-Fi", "Mobil veri", "Müzik dinleme"],
+                dogruCevap: "Müzik dinleme"
+            },
+            {
+                soru: "Bir bilgisayarın 'fare' (mouse) ne işe yarar?",
+                secenekler: ["Sadece yazı yazmak", "Ekrandaki imleci kontrol etmek ve tıklamak", "Sadece ses çıkarmak", "Sadece film izlemek"],
+                dogruCevap: "Ekrandaki imleci kontrol etmek ve tıklamak"
+            },
+            {
+                soru: "Bir e-postayı 'yanıtla' butonuna tıklamak ne anlama gelir?",
+                secenekler: ["E-postayı silmek", "E-postayı gönderen kişiye cevap yazmak", "E-postayı başkasına göndermek", "E-postayı kaydetmek"],
+                dogruCevap: "E-postayı gönderen kişiye cevap yazmak"
+            },
+            {
+                soru: "Telefonunuzda 'konum' özelliğini kapatmak ne işe yarar?",
+                secenekler: ["Telefonun pilini şarj etmek", "Uygulamaların yerinizi bulmasını engellemek", "Telefonu kapatmak", "Telefonun sesini kısmak"],
+                dogruCevap: "Uygulamaların yerinizi bulmasını engellemek"
+            },
+            {
+                soru: "Bir bilgisayarın 'monitör'ü ne işe yarar?",
+                secenekler: ["Sadece ses çıkarmak", "Görsel bilgileri göstermek", "Sadece yazı yazmak", "Sadece oyun oynamak"],
+                dogruCevap: "Görsel bilgileri göstermek"
+            },
+            {
+                soru: "Bir 'siber güvenlik' uzmanı ne iş yapar?",
+                secenekler: ["Film çeker", "Bilgisayar sistemlerini hackerlardan korur", "Ev eşyası satar", "Yemek yapar"],
+                dogruCevap: "Bilgisayar sistemlerini hackerlardan korur"
+            },
+            {
+                soru: "Telefonunuzdaki 'Galeri' ne işe yarar?",
+                secenekler: ["Sadece oyun oynamak", "Fotoğraflarınızı ve videolarınızı saklamak", "Sadece e-posta göndermek", "Sadece müzik dinlemek"],
+                dogruCevap: "Fotoğraflarınızı ve videolarınızı saklamak"
+            },
+            {
+                soru: "Bir 'şifre' (password) ne işe yarar?",
+                secenekler: ["Birine para göndermek", "Gizli bilgileri korumak", "Film izlemek", "Yemek yapmak"],
+                dogruCevap: "Gizli bilgileri korumak"
+            },
+            {
+                soru: "Bir e-postanın konusu (subject) nerede yer alır?",
+                secenekler: ["E-postanın en sonunda", "E-postanın başında, alıcı ve gönderici bilgisinden sonra", "E-postanın gövdesinde", "E-postanın ekinde"],
+                dogruCevap: "E-postanın başında, alıcı ve gönderici bilgisinden sonra"
+            },
+            {
+                soru: "Telefonunuzda 'internet'i kapatmak için hangi modu kullanabilirsiniz?",
+                secenekler: ["Kamera modu", "Uçak modu", "El feneri modu", "Zil sesi modu"],
+                dogruCevap: "Uçak modu"
+            },
+            {
+                soru: "Bir 'USB bellek' ne işe yarar?",
+                secenekler: ["Sadece müzik dinlemek", "Bilgisayara kablosuz bağlanmak", "Dosyaları taşımak ve depolamak", "Sadece film izlemek"],
+                dogruCevap: "Dosyaları taşımak ve depolamak"
+            },
+            {
+                soru: "E-posta gönderirken 'ek' (attachment) ne işe yarar?",
+                secenekler: ["Mesajın konusu", "Mesajın gövdesi", "Mesaja eklenen dosya", "Mesajın sonu"],
+                dogruCevap: "Mesaja eklenen dosya"
+            },
+            {
+                soru: "Akıllı telefonunuzdaki 'Hesap Makinesi' uygulaması ne işe yarar?",
+                secenekler: ["Sadece oyun oynamak", "Matematiksel hesaplamalar yapmak", "Sadece film izlemek", "Sadece müzik dinlemek"],
+                dogruCevap: "Matematiksel hesaplamalar yapmak"
+            },
+            {
+                soru: "Bir bilgisayarda 'kısayol' ne demektir?",
+                secenekler: ["Dosyanın tam kopyası", "Bir dosyayı açmak için hızlı bir yol sağlayan simge", "Dosyanın yedeği", "Dosyanın adı"],
+                dogruCevap: "Bir dosyayı açmak için hızlı bir yol sağlayan simge"
+            },
+            {
+                soru: "Telefonunuzda 'Bluetooth'u açmak ne işe yarar?",
+                secenekler: ["Telefonu şarj etmek", "Kablosuz cihazlarla bağlantı kurmak", "Telefonu kapatmak", "Telefonun sesini kısmak"],
+                dogruCevap: "Kablosuz cihazlarla bağlantı kurmak"
+            },
+            {
+                soru: "Bir web sitesinde 'kayıtlı kal' veya 'beni hatırla' ne anlama gelir?",
+                secenekler: ["Siteyi silmek", "Her girişte tekrar şifre yazmadan siteye girmek", "Siteye para ödemek", "Siteyi kapatmak"],
+                dogruCevap: "Her girişte tekrar şifre yazmadan siteye girmek"
+            },
+            {
+                soru: "WhatsApp'ta bir 'görüntülü konuşma' başlatmak ne anlama gelir?",
+                secenekler: ["Sadece sesli konuşmak", "Yazı yazarak konuşmak", "Video ve sesli konuşmak", "Sadece video izlemek"],
+                dogruCevap: "Video ve sesli konuşmak"
+            },
+            {
+                soru: "Bir bilgisayarın 'depolama birimi' (hard drive) ne işe yarar?",
+                secenekler: ["Sadece film izlemek", "Dosyaları kalıcı olarak saklamak", "Sadece oyun oynamak", "Sadece müzik dinlemek"],
+                dogruCevap: "Dosyaları kalıcı olarak saklamak"
+            },
+            {
+                soru: "Telefonunuzdaki 'Hava durumu' uygulamasını kullanmak için ne gerekir?",
+                secenekler: ["Sadece şarj", "İnternet bağlantısı", "Sadece telefonun açık olması", "Sadece bir kalem"],
+                dogruCevap: "İnternet bağlantısı"
+            },
+            {
+                soru: "Bir 'Wi-Fi ağına bağlanmak' ne anlama gelir?",
+                secenekler: ["Telefonu kapatmak", "İnternete kablosuz olarak erişmek", "Telefonu şarj etmek", "Telefonun sesini kısmak"],
+                dogruCevap: "İnternete kablosuz olarak erişmek"
+            },
+            {
+                soru: "Bir sosyal medya platformunda bir 'yazı' paylaşmak ne anlama gelir?",
+                secenekler: ["Sadece fotoğraf paylaşmak", "Sadece video paylaşmak", "Düşünceleri ve bilgileri yazılı olarak paylaşmak", "Sadece oyun oynamak"],
+                dogruCevap: "Düşünceleri ve bilgileri yazılı olarak paylaşmak"
+            },
+            {
+                soru: "Bir 'yazılım'ın 'korsan' versiyonu ne anlama gelir?",
+                secenekler: ["Yasal olarak satın alınmış yazılım", "Yasal olmayan, telif hakkı ihlal eden yazılım", "Ücretsiz olarak dağıtılan yazılım", "Güncellenmiş yazılım"],
+                dogruCevap: "Yasal olmayan, telif hakkı ihlal eden yazılım"
+            },
+            {
+                soru: "Telefonunuzda 'mesajları silmek' ne işe yarar?",
+                secenekler: ["Telefonun hızını yavaşlatır", "Mesajları kalıcı olarak kaldırır", "Mesajları yedekler", "Mesajları okur"],
+                dogruCevap: "Mesajları kalıcı olarak kaldırır"
+            },
+            {
+                soru: "Bir 'akıllı televizyon' ne işe yarar?",
+                secenekler: ["Sadece normal televizyon kanallarını izlemek", "İnternete bağlanarak dizi/film platformlarına ve uygulamalara erişmek", "Sadece müzik dinlemek", "Sadece oyun oynamak"],
+                dogruCevap: "İnternete bağlanarak dizi/film platformlarına ve uygulamalara erişmek"
+            }
+        ];
+
+        let mevcutSoruIndex = 0;
+        let skor = 0;
+
+        const soruElementi = document.getElementById('question');
+        const seceneklerElementi = document.getElementById('options-box');
+        const sonucElementi = document.getElementById('result-box');
+        const yenidenBaslaButonu = document.getElementById('restart-button');
+
+        function soruyuYukle() {
+            if (mevcutSoruIndex < sorular.length) {
+                const mevcutSoru = sorular[mevcutSoruIndex];
+                soruElementi.textContent = (mevcutSoruIndex + 1) + ". " + mevcutSoru.soru;
+                seceneklerElementi.innerHTML = '';
+                mevcutSoru.secenekler.forEach(secenek => {
+                    const button = document.createElement('button');
+                    button.textContent = secenek;
+                    button.classList.add('option-button');
+                    button.addEventListener('click', () => cevapKontrol(secenek));
+                    seceneklerElementi.appendChild(button);
+                });
+                sonucElementi.style.display = 'none';
+            } else {
+                quizBitti();
+            }
+        }
+
+        function cevapKontrol(secilenCevap) {
+            const mevcutSoru = sorular[mevcutSoruIndex];
+            if (secilenCevap === mevcutSoru.dogruCevap) {
+                skor++;
+            }
+            mevcutSoruIndex++;
+            soruyuYukle();
+        }
+
+        function quizBitti() {
+            soruElementi.textContent = '';
+            seceneklerElementi.innerHTML = '';
+            sonucElementi.textContent = `Bilgi yarışması bitti! Toplam skorunuz: ${skor} / ${sorular.length}`;
+            sonucElementi.style.display = 'block';
+            yenidenBaslaButonu.style.display = 'block';
+        }
+
+        yenidenBaslaButonu.addEventListener('click', () => {
+            mevcutSoruIndex = 0;
+            skor = 0;
+            yenidenBaslaButonu.style.display = 'none';
+            soruyuYukle();
+        });
+
+        soruyuYukle(); // Sayfa yüklendiğinde ilk soruyu göster
+    </script>
+
+</body>
+</html>
